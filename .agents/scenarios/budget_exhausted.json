@@ -1,0 +1,13 @@
+[
+  {"state": "REQUIREMENTS",   "decision": "advance",    "defect_type": null,           "summary": "clear"},
+  {"state": "DESIGN",         "decision": "advance",    "defect_type": null,           "summary": "ready"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,           "summary": "ok"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,           "summary": "attempt 1"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "implementation", "summary": "bug (1)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,           "summary": "attempt 2"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "implementation", "summary": "bug (2)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,           "summary": "attempt 3"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "implementation", "summary": "bug (3)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,           "summary": "attempt 4"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "implementation", "summary": "bug (4) -> over budget"}
+]

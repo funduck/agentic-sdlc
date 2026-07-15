@@ -1,0 +1,6 @@
+# Per-task runtime state produced by orchestrator.py
+state/
+
+# Python
+__pycache__/
+*.pyc

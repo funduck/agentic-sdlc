@@ -1,0 +1,11 @@
+[
+  {"state": "REQUIREMENTS",   "decision": "advance",    "defect_type": null,        "summary": "looks clear"},
+  {"state": "DESIGN",         "decision": "advance",    "defect_type": null,        "summary": "design v1"},
+  {"state": "PRE_QA",         "decision": "needs_work", "defect_type": "requirement", "summary": "empty-input behaviour undefined -> route to requirements"},
+  {"state": "REQUIREMENTS",   "decision": "advance",    "defect_type": null,        "summary": "clarified empty-input rule"},
+  {"state": "DESIGN",         "decision": "advance",    "defect_type": null,        "summary": "design v2"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,        "summary": "design ok now"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,        "summary": "code written"},
+  {"state": "QA",             "decision": "advance",    "defect_type": null,        "summary": "tests pass"},
+  {"state": "REVIEW",         "decision": "advance",    "defect_type": null,        "summary": "approved"}
+]

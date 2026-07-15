@@ -1,0 +1,8 @@
+[
+  {"state": "REQUIREMENTS",   "decision": "advance",   "defect_type": null, "summary": "requirements clear"},
+  {"state": "DESIGN",         "decision": "advance",   "defect_type": null, "summary": "design ready"},
+  {"state": "PRE_QA",         "decision": "advance",   "defect_type": null, "summary": "test cases written, design ok"},
+  {"state": "IMPLEMENTATION", "decision": "advance",   "defect_type": null, "summary": "code written"},
+  {"state": "QA",             "decision": "advance",   "defect_type": null, "summary": "all tests pass"},
+  {"state": "REVIEW",         "decision": "advance",   "defect_type": null, "summary": "approved"}
+]
