@@ -93,11 +93,35 @@ deterministically with zero API calls:
 
 ```bash
 # happy path -> DONE
-python3 orchestrator.py --task demo --stub-scenario scenarios/happy.json
+python3 orchestrator.py run --task demo --stub-scenario scenarios/happy.json
 
 # a loop that exhausts its budget -> ESCALATE_USER
-python3 orchestrator.py --task demo --stub-scenario scenarios/budget_exhausted.json --budget 3
+python3 orchestrator.py run --task demo --stub-scenario scenarios/budget_exhausted.json --budget 3
 
 # Pre-QA discovers a requirements gap -> routes to Requirements, then completes
-python3 orchestrator.py --task demo --stub-scenario scenarios/prega_finds_requirement_gap.json
+python3 orchestrator.py run --task demo --stub-scenario scenarios/prega_finds_requirement_gap.json
 ```
+
+## Adding & running a task
+The orchestrator exposes three subcommands (run them from `.agents/`, where the default `state/` and
+`prompts/` paths resolve):
+
+```bash
+# 1. Add a task: creates state/<id>/task.md and an initial state.json.
+#    Requirements come from stdin (or --from PATH).
+echo "Build a CLI that adds two numbers" | python3 orchestrator.py add --task calc
+
+# 2. Run it through the real agents. Re-running resumes an interrupted task;
+#    --restart wipes progress and starts over from REQUIREMENTS.
+python3 orchestrator.py run --task calc
+python3 orchestrator.py run --task calc --restart
+
+# 3. Check where a task is: current stage, status, loop counters, recent history.
+python3 orchestrator.py status --task calc
+```
+
+For interactive use inside Claude Code, thin slash-command wrappers live in `.claude/commands/`:
+
+- `/add-task <task-id> <requirements...>` — create the task workspace (does not start it).
+- `/run-task <task-id> [--restart]` — run / resume / restart with the real agents.
+- `/status-task <task-id>` — summarize the task's state.

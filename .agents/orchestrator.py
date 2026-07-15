@@ -234,25 +234,79 @@ def run(
     return state
 
 
-# --- CLI ------------------------------------------------------------------
+# --- Subcommands ----------------------------------------------------------
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--task", required=True, help="task id (also the state dir name)")
-    parser.add_argument("--state-root", default="state", help="root dir for per-task state")
-    parser.add_argument("--prompts-dir", default="prompts", help="dir with per-stage prompts")
-    parser.add_argument("--budget", type=int, default=DEFAULT_BUDGET, help="max attempts per loop")
-    parser.add_argument(
-        "--stub-scenario",
-        help="path to a JSON list of scripted verdicts (stub mode; no API calls)",
-    )
-    args = parser.parse_args(argv)
+def cmd_add(args) -> int:
+    """Create a task workspace and capture its requirements in task.md."""
+    root = Path(args.state_root)
+    d = task_dir(root, args.task)
+    task_md = d / "task.md"
+
+    if task_md.exists() and not args.force:
+        print(f"task.md already exists at {task_md}; use --force to overwrite", file=sys.stderr)
+        return 1
+
+    if args.from_file:
+        requirements = Path(args.from_file).read_text()
+    else:
+        requirements = sys.stdin.read()
+
+    if not requirements.strip():
+        print("no requirements text provided (pass --from PATH or pipe via stdin)", file=sys.stderr)
+        return 1
+
+    d.mkdir(parents=True, exist_ok=True)
+    task_md.write_text(requirements if requirements.endswith("\n") else requirements + "\n")
+
+    # Initialize a fresh state record (load_state returns a default when absent).
+    state = load_state(root, args.task)
+    save_state(root, args.task, state)
+
+    print(json.dumps({
+        "task_id": args.task,
+        "task_md": str(task_md),
+        "current_state": state["current_state"],
+    }, indent=2))
+    return 0
+
+
+def cmd_run(args) -> int:
+    """Run, resume, or restart a task's orchestration."""
+    root = Path(args.state_root)
+    d = task_dir(root, args.task)
+    task_md = d / "task.md"
 
     scenario = None
     if args.stub_scenario:
         scenario = json.loads(Path(args.stub_scenario).read_text())
 
-    root = Path(args.state_root)
+    # Real agents read task.md; require it exists (stub runs don't need it).
+    if scenario is None and not task_md.exists():
+        print(f"no task.md at {task_md}; run `add` first", file=sys.stderr)
+        return 1
+
+    if args.restart:
+        # Reset progress to the start; keep task.md and any owned documents.
+        fresh = {
+            "task_id": args.task,
+            "current_state": START_STATE,
+            "status": "running",
+            "counters": {},
+            "history": [],
+        }
+        d.mkdir(parents=True, exist_ok=True)
+        save_state(root, args.task, fresh)
+    else:
+        existing = load_state(root, args.task)
+        if existing["current_state"] in TERMINAL_STATES:
+            print(json.dumps({
+                "task_id": args.task,
+                "final_state": existing["current_state"],
+                "status": existing["status"],
+                "note": "task already finished; pass --restart to run again",
+            }, indent=2))
+            return 0
+
     final = run(
         root=root,
         task_id=args.task,
@@ -269,6 +323,64 @@ def main(argv: list[str] | None = None) -> int:
         "steps": len(final["history"]),
     }, indent=2))
     return 0 if final["status"] in {"done", "escalated"} else 1
+
+
+def cmd_status(args) -> int:
+    """Print a compact summary of a task's persisted state."""
+    root = Path(args.state_root)
+    if not state_path(root, args.task).exists():
+        print(f"no state for task {args.task!r} under {root}; run `add` first", file=sys.stderr)
+        return 1
+
+    state = load_state(root, args.task)
+    history = state.get("history", [])
+    tail = history[-5:]
+    print(json.dumps({
+        "task_id": state["task_id"],
+        "current_state": state["current_state"],
+        "status": state["status"],
+        "counters": state["counters"],
+        "steps": len(history),
+        "recent": [
+            {"from": h["from"], "to": h["to"], "summary": h["verdict"].get("summary")}
+            for h in tail
+        ],
+    }, indent=2))
+    return 0
+
+
+# --- CLI ------------------------------------------------------------------
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_add = sub.add_parser("add", help="create a task workspace and capture its requirements")
+    p_add.add_argument("--task", required=True, help="task id (also the state dir name)")
+    p_add.add_argument("--state-root", default="state", help="root dir for per-task state")
+    p_add.add_argument("--from", dest="from_file", help="read requirements from this file (default: stdin)")
+    p_add.add_argument("--force", action="store_true", help="overwrite an existing task.md")
+    p_add.set_defaults(func=cmd_add)
+
+    p_run = sub.add_parser("run", help="run, resume, or restart a task")
+    p_run.add_argument("--task", required=True, help="task id (also the state dir name)")
+    p_run.add_argument("--state-root", default="state", help="root dir for per-task state")
+    p_run.add_argument("--prompts-dir", default="prompts", help="dir with per-stage prompts")
+    p_run.add_argument("--budget", type=int, default=DEFAULT_BUDGET, help="max attempts per loop")
+    p_run.add_argument("--restart", action="store_true", help="reset progress and run from the start")
+    p_run.add_argument(
+        "--stub-scenario",
+        help="path to a JSON list of scripted verdicts (stub mode; no API calls)",
+    )
+    p_run.set_defaults(func=cmd_run)
+
+    p_status = sub.add_parser("status", help="print a task's current state and recent history")
+    p_status.add_argument("--task", required=True, help="task id (also the state dir name)")
+    p_status.add_argument("--state-root", default="state", help="root dir for per-task state")
+    p_status.set_defaults(func=cmd_status)
+
+    args = parser.parse_args(argv)
+    return args.func(args)
 
 
 if __name__ == "__main__":
