@@ -17,4 +17,8 @@ cd .agents && python3 orchestrator.py run --task <task-id> [--restart]
 ```
 
 3. Note: re-running an interrupted task without `--restart` automatically resumes from where it left off (state is persisted after every stage). If the task already finished, the command reports that and does nothing unless `--restart` is given.
-4. Relay the final `state`/`status` JSON to the user. If the status is `escalated`, point them to the state history for what to resolve.
+4. Relay the final `state`/`status` JSON to the user.
+   - If the status is `awaiting_approval` (state `CONFIRM_REQUIREMENTS`), the run paused for the human
+     requirements gate: tell the user to run `/confirm-task <task-id>` to review and approve (or request
+     changes). Design does not start until they do.
+   - If the status is `escalated`, point them to the state history for what to resolve.

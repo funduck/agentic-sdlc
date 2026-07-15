@@ -3,7 +3,7 @@ This project is a simple experiment to demonstrate how multiple agents can work 
 
 ## Agents
 Workflow consists of the following agents passing the work from one to another:
-1. **Requirements Agent**: Gathers and analyses requirements. May ask clarifying questions. Owns the requirements document.
+1. **Requirements Agent**: Gathers and analyses requirements, surfacing every assumption and open question. Owns the requirements document, which a human must approve at the confirm-requirements gate before Design begins.
 2. **Design Agent**: Creates design document of the solution. Owns the design document.
 3. **Pre-QA Agent**: Prepares test cases, discovers potential issues, and provides feedback to the design or requirements agent.
 4. **Implementation Agent**: Implements the solution based on the design document.
@@ -38,9 +38,10 @@ which re-run against the updated version.
 ```mermaid
 flowchart TB
     U[User adds / clarifies task] --> A[Requirements Agent]
-    A --> AA{Clear & complete?}
-    AA -- No --> U
-    AA -- Yes --> B[Design Agent]
+    A --> AA[CONFIRM_REQUIREMENTS gate]
+    AA --> UU{User signs off?}
+    UU -- Request changes --> A
+    UU -- Approve --> B[Design Agent]
 
     B -->|requirements gap| A
     B --> C[Pre-QA Agent]
@@ -63,7 +64,6 @@ flowchart TB
     FF -- requirement --> A
     FF -- none --> G[Notify user: task complete]
 
-    AA -. budget exceeded .-> U
     CC -. budget exceeded .-> U
     EE -. budget exceeded .-> U
     FF -. budget exceeded .-> U
@@ -76,8 +76,14 @@ their attempts across separate invocations. Control flow lives in code; the agen
 workers that each do one job and return a machine-readable *verdict*. The orchestrator reads the
 verdict, updates externally-persisted state, and decides retry-vs-advance-vs-escalate.
 
-- **States** are the diagram's nodes (`REQUIREMENTS` … `REVIEW`, plus terminal `DONE` /
-  `ESCALATE_USER`). The transition table lives in `transition()`.
+- **States** are the diagram's nodes (`REQUIREMENTS` … `REVIEW`, the human-approval pause state
+  `CONFIRM_REQUIREMENTS`, plus terminal `DONE` / `ESCALATE_USER`). The transition table lives in
+  `transition()`.
+- **Human-approval gate.** Requirements never advance straight to Design: the run always pauses at
+  `CONFIRM_REQUIREMENTS` (status `awaiting_approval`) so a human can review `requirements.md` — every
+  assumption included — and either approve it or request changes. The `confirm` subcommand resolves the
+  gate; requested changes route back to Requirements (which receives the change text as feedback) and
+  return to the gate. Stub runs auto-approve the gate so the machine stays exercisable without a human.
 - **Verdict** (what every agent returns): `{"decision": "advance|needs_work|unclear",
   "defect_type": "requirement|design|implementation|null", "summary": "..."}`. Routing keys off
   `defect_type` so a problem goes to its *owner* stage, not merely the previous one.
@@ -116,7 +122,13 @@ echo "Build a CLI that adds two numbers" | python3 orchestrator.py add --task ca
 python3 orchestrator.py run --task calc
 python3 orchestrator.py run --task calc --restart
 
-# 3. Check where a task is: current stage, status, loop counters, recent history.
+# 3. A run pauses at the requirements approval gate (status "awaiting_approval").
+#    Review state/<id>/requirements.md, then approve or request changes; either
+#    way the pipeline auto-continues from the resolved state.
+python3 orchestrator.py confirm --task calc --approve
+python3 orchestrator.py confirm --task calc --request-changes "target a CLI, not a web app"
+
+# 4. Check where a task is: current stage, status, loop counters, recent history.
 python3 orchestrator.py status --task calc
 ```
 
@@ -124,4 +136,5 @@ For interactive use inside Claude Code, thin slash-command wrappers live in `.cl
 
 - `/add-task <task-id> <requirements...>` — create the task workspace (does not start it).
 - `/run-task <task-id> [--restart]` — run / resume / restart with the real agents.
+- `/confirm-task <task-id> [--approve | --request-changes "..."]` — sign off at the requirements gate.
 - `/status-task <task-id>` — summarize the task's state.

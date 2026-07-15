@@ -17,3 +17,5 @@ cd .agents && python3 orchestrator.py status --task <task-id>
 ```
 
 3. Relay the summary: current stage, status, loop counters, and the recent transition history.
+4. If the status is `awaiting_approval` (state `CONFIRM_REQUIREMENTS`), tell the user the requirements
+   need their sign-off and to run `/confirm-task <task-id>` to review and approve or request changes.

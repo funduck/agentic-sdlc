@@ -30,8 +30,16 @@ verdict.
 .claude/commands/        thin slash-command wrappers around the orchestrator CLI:
   add-task.md             /add-task <task-id> <requirements...>
   run-task.md              /run-task <task-id> [--restart]
+  confirm-task.md          /confirm-task <task-id> [--approve | --request-changes "..."]
   status-task.md           /status-task <task-id>
 ```
+
+**Human-approval gate.** After the Requirements Agent runs, the pipeline always pauses at the
+`CONFIRM_REQUIREMENTS` state (status `awaiting_approval`) and waits for a human to approve
+`requirements.md` — assumptions and all — before Design starts. Resolve it with `/confirm-task` (or
+`orchestrator.py confirm`): `--approve` proceeds to Design; `--request-changes "..."` sends it back to
+Requirements with that feedback and returns to the gate. This is a deliberate design invariant — do
+not route around it or auto-advance requirements.
 
 Equivalent skills (`add-task`, `run-task`, `status-task`) are also registered for direct
 invocation.
