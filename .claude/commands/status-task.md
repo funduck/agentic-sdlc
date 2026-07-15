@@ -13,7 +13,7 @@ Steps:
 2. Run:
 
 ```bash
-cd .agents && python3 orchestrator.py status --task <task-id>
+python3 .claude/scripts/orchestrator/orchestrator.py status --task <task-id>
 ```
 
 3. Relay the summary: current stage, status, loop counters, and the recent transition history.

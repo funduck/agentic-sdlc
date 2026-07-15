@@ -14,7 +14,7 @@ Steps:
 3. Create the task by piping the requirements into the orchestrator (this creates `state/<task-id>/task.md` and an initial `state.json`):
 
 ```bash
-cd .agents && python3 orchestrator.py add --task <task-id> <<'EOF'
+python3 .claude/scripts/orchestrator/orchestrator.py add --task <task-id> <<'EOF'
 <requirements text>
 EOF
 ```
