@@ -215,6 +215,7 @@ def run_agent_cli(
         "claude", "-p", user_prompt,
         "--output-format", "json",
         "--append-system-prompt", system_prompt,
+        "--permission-mode", "acceptEdits",
     ]
     subprocess.run(cmd, check=True, cwd=project_dir)
 
