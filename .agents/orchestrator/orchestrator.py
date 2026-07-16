@@ -66,15 +66,15 @@ OWNER = {
 
 DEFAULT_BUDGET = 3
 
-# This file lives at <repo_root>/.claude/scripts/orchestrator/orchestrator.py.
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+# This file lives at <repo_root>/.agents/orchestrator/orchestrator.py.
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 # Where agents run (and write product code) by default: the repo root.
 DEFAULT_PROJECT_DIR = str(REPO_ROOT)
 
-# Per-task state persists under `.agents/` at the repo root and is committed to
+# Per-task state persists under `.agents/state/` at the repo root and is committed to
 # the repo as a work artifact, regardless of the orchestrator's own location.
-DEFAULT_STATE_ROOT = str(REPO_ROOT / ".agents")
+DEFAULT_STATE_ROOT = str(REPO_ROOT / ".agents/state/")
 
 # --- Verdicts -------------------------------------------------------------
 DECISION_ADVANCE = "advance"
@@ -569,7 +569,7 @@ def _add_common(p) -> None:
     p.add_argument(
         "--state-root",
         default=DEFAULT_STATE_ROOT,
-        help="root dir for per-task state (default: .agents/ at the repo root)",
+        help="root dir for per-task state (default: .agents/state/ at the repo root)",
     )
 
 

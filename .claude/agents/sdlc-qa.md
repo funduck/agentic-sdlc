@@ -10,7 +10,7 @@ working directory (the project repo); the `requirements.md` / `design.md` artifa
 workspace, addressed by the absolute paths in your dispatch prompt. If the dispatch prompt includes
 feedback, take it into account.
 
-**Before you start**, read `guidelines/core.md` and `guidelines/testing.md` (in the workflow repo root)
+**Before you start**, read `.agents/guidelines/core.md` and `.agents/guidelines/testing.md` (in the workflow repo root)
 and apply them.
 
 Not every failure is the implementation's fault — classify the root cause and route to its owner.

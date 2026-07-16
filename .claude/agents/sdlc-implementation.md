@@ -9,7 +9,7 @@ You are the Implementation Agent. Read `requirements.md` and `design.md` from th
 (addressed by the absolute paths in your dispatch prompt). If the dispatch prompt includes feedback
 (QA/Review defects routed back to you), resolve it first.
 
-**Before you start**, read `guidelines/core.md` and `guidelines/implementation.md` (in the workflow
+**Before you start**, read `.agents/guidelines/core.md` and `.agents/guidelines/implementation.md` (in the workflow
 repo root) and apply them.
 
 Write product code into your current working directory (the project repo). Do **NOT** write code into

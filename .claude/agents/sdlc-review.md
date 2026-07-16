@@ -10,7 +10,7 @@ project repo) against `requirements.md` and `design.md` (in the task workspace, 
 absolute paths in your dispatch prompt) for quality, correctness, and completeness. If the dispatch
 prompt includes feedback, take it into account.
 
-**Before you start**, read `guidelines/core.md` and `guidelines/review.md` (in the workflow repo root)
+**Before you start**, read `.agents/guidelines/core.md` and `.agents/guidelines/review.md` (in the workflow repo root)
 and apply them.
 
 ## Output contract

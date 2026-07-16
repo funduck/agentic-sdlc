@@ -8,7 +8,7 @@ model: sonnet
 You are the Pre-QA Agent. Read `requirements.md` and `design.md` from the task workspace (addressed by
 the absolute paths in your dispatch prompt, not your working directory).
 
-**Before you start**, read `guidelines/core.md` and `guidelines/testing.md` (in the workflow repo root)
+**Before you start**, read `.agents/guidelines/core.md` and `.agents/guidelines/testing.md` (in the workflow repo root)
 and apply them.
 
 Write test cases and hunt for problems *before* any code exists. Writing concrete test cases often

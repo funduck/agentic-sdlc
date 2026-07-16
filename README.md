@@ -75,7 +75,7 @@ flowchart TB
 ```
 
 ## Orchestrator
-The diagram is enforced by [orchestrator.py](.claude/scripts/orchestrator/orchestrator.py) — a small deterministic state
+The diagram is enforced by [orchestrator.py](.agents/orchestrator/orchestrator.py) — a small deterministic state
 machine, because **an LLM must never be the thing that enforces a loop budget**: agents can't reliably
 count their attempts across separate invocations. Control flow lives in code; the agents are stateless
 workers that each do one job and return a machine-readable *verdict*. The orchestrator reads the
@@ -100,7 +100,7 @@ the single source of routing truth.
 - **Verdict** (what every agent returns): `{"decision": "advance|needs_work|unclear",
   "defect_type": "requirement|design|implementation|null", "summary": "..."}`. Routing keys off
   `defect_type` so a problem goes to its *owner* stage, not merely the previous one.
-- **State** persists per task in `.agents/<task_id>/state.json` as an append-only history (crash
+- **State** persists per task in `.agents/state/<task_id>/state.json` as an append-only history (crash
   recovery + an audit trail for debugging ping-pong), committed to the repo as a work artifact. The
   versioned `requirements.md` / `design.md` artifacts live in the same directory.
 - **Budgets** are deterministic: each backward edge increments a counter; when a loop exceeds its
@@ -111,7 +111,7 @@ For development the state machine is exercised with **stubbed** scripted verdict
 subagents, via `run --stub-scenario`:
 
 ```bash
-cd .claude/scripts/orchestrator
+cd .agents/orchestrator
 
 # happy path -> DONE
 python3 orchestrator.py run --task demo --restart --stub-scenario test/scenarios/happy.json
@@ -124,8 +124,8 @@ python3 orchestrator.py run --task demo --restart --stub-scenario test/scenarios
 ```
 
 ## Guidelines
-Engineering best practices live in [guidelines/](guidelines/) at the repo root: a shared
-[core.md](guidelines/core.md) (KISS, DRY, YAGNI, SOLID, clear naming, error handling, security,
+Engineering best practices live in [.agents/guidelines/](.agents/guidelines/) at the repo root: a shared
+[core.md](.agents/guidelines/core.md) (KISS, DRY, YAGNI, SOLID, clear naming, error handling, security,
 testing mindset) that every stage applies, plus deeper per-domain files
 (`requirements.md`, `design.md`, `testing.md`, `implementation.md`, `review.md`). Each subagent
 references `core.md` and its stage-specific file and is instructed to read and apply them before
@@ -142,25 +142,25 @@ they drive the pipeline by asking the orchestrator for each step and dispatching
   then continue the driver loop.
 - `/status-task <task-id>` — summarize the task's state.
 
-Under the hood these call the orchestrator subcommands. State defaults to `.agents/` at the repo
+Under the hood these call the orchestrator subcommands. State defaults to `.agents/state` at the repo
 root regardless of cwd, so the commands can run from anywhere; invoked from the repo root:
 
 ```bash
-# Add a task: creates .agents/<id>/task.md and an initial state.json (stdin or --from PATH).
-echo "Build a CLI that adds two numbers" | python3 .claude/scripts/orchestrator/orchestrator.py add --task calc
+# Add a task: creates .agents/state/<task-id>/task.md and an initial state.json (stdin or --from PATH).
+echo "Build a CLI that adds two numbers" | python3 .agents/orchestrator/orchestrator.py add --task calc
 
 # Ask for the next step (read-only; launches nothing). Returns a run_agent / await_approval /
 # done / escalate instruction the driver acts on.
-python3 .claude/scripts/orchestrator/orchestrator.py next --task calc
+python3 .agents/orchestrator/orchestrator.py next --task calc
 
 # After a subagent writes verdict.json, record it: advances state, enforces budgets, prints the
 # next instruction plus last_summary.
-python3 .claude/scripts/orchestrator/orchestrator.py record --task calc
+python3 .agents/orchestrator/orchestrator.py record --task calc
 
 # Resolve the requirements approval gate, then the driver continues from the printed instruction.
-python3 .claude/scripts/orchestrator/orchestrator.py confirm --task calc --approve
-python3 .claude/scripts/orchestrator/orchestrator.py confirm --task calc --request-changes "target a CLI, not a web app"
+python3 .agents/orchestrator/orchestrator.py confirm --task calc --approve
+python3 .agents/orchestrator/orchestrator.py confirm --task calc --request-changes "target a CLI, not a web app"
 
 # Check where a task is: current stage, status, loop counters, recent history.
-python3 .claude/scripts/orchestrator/orchestrator.py status --task calc
+python3 .agents/orchestrator/orchestrator.py status --task calc
 ```

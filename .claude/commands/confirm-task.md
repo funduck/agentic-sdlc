@@ -13,7 +13,7 @@ Steps:
 
 1. Parse the task id (first token).
 
-2. **Show the requirements first.** Read `.agents/<task-id>/requirements.md` and present it to
+2. **Show the requirements first.** Read `.agents/state/<task-id>/requirements.md` and present it to
    the user — especially the **Assumptions** and **Open Questions** sections — so they can judge before
    signing off. (Confirm the task is at the gate with `/status-task <task-id>` if unsure.) This is the
    one place the driver reads a workspace file directly, because the human is the reviewer here.
@@ -22,12 +22,12 @@ Steps:
 
    Approve (proceed to Design):
    ```bash
-   python3 .claude/scripts/orchestrator/orchestrator.py confirm --task <task-id> --approve
+   python3 .agents/orchestrator/orchestrator.py confirm --task <task-id> --approve
    ```
 
    Request changes (send back to Requirements with feedback, then return to the gate):
    ```bash
-   python3 .claude/scripts/orchestrator/orchestrator.py confirm --task <task-id> --request-changes "<feedback>"
+   python3 .agents/orchestrator/orchestrator.py confirm --task <task-id> --request-changes "<feedback>"
    ```
 
 4. **Continue the driver loop** using the instruction `confirm` printed, exactly as `/run-task` does:

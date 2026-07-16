@@ -11,10 +11,10 @@ Arguments: `$ARGUMENTS`
 Steps:
 1. Parse the arguments: the first token is the task id. If it looks like free text rather than an id, derive a short kebab-case task id from the requirements yourself.
 2. Treat the remaining text as the task requirements.
-3. Create the task by piping the requirements into the orchestrator (this creates `state/<task-id>/task.md` and an initial `state.json`):
+3. Create the task by piping the requirements into the orchestrator (this creates `.agents/state/<task-id>/task.md` and an initial `state.json`):
 
 ```bash
-python3 .claude/scripts/orchestrator/orchestrator.py add --task <task-id> <<'EOF'
+python3 .agents/orchestrator/orchestrator.py add --task <task-id> <<'EOF'
 <requirements text>
 EOF
 ```
