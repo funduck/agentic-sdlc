@@ -1,0 +1,100 @@
+{
+  "task_id": "cli-calc",
+  "current_state": "DONE",
+  "status": "done",
+  "counters": {
+    "pre_qa->design": 1
+  },
+  "history": [
+    {
+      "ts": "2026-07-16T08:04:45.871482+00:00",
+      "from": "REQUIREMENTS",
+      "to": "CONFIRM_REQUIREMENTS",
+      "verdict": {
+        "decision": "unclear",
+        "defect_type": null,
+        "summary": "requirements.md written for the CLI calculator with extended math functions (arithmetic operators, trig/log/exp functions, constants, error handling, output formatting). It documents 9 assumptions (single-shot invocation with no REPL, language left to Design, lowercase function names, insignificant whitespace, log=base10/ln=natural, no persistent state/config, exit-code convention, no scientific notation) and 5 open questions the user should decide: (1) interaction mode - single-shot vs REPL vs both, (2) angle unit for trig functions - radians vs degrees vs both, (3) whether the extended-function list needs hyperbolic/factorial/pow/rounding functions, (4) desired output precision/format, (5) how the tool should be distributed/invoked (named command vs interpreter invocation). Please review requirements.md, especially the Open Questions, before approving."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:10:52.582660+00:00",
+      "from": "CONFIRM_REQUIREMENTS",
+      "to": "DESIGN",
+      "verdict": {
+        "decision": "approved",
+        "defect_type": null,
+        "summary": "user approved requirements"
+      }
+    },
+    {
+      "ts": "2026-07-16T08:14:46.414187+00:00",
+      "from": "DESIGN",
+      "to": "PRE_QA",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "design.md written for the CLI calculator. Covers module layout (cmd/calc CLI shell + internal/calc pure parsing/eval core with a run(args, stdout, stderr) test seam), the expression grammar as a recursive-descent/precedence-climbing parser that encodes FR-2's exact precedence (parentheses > unary minus > ^ > */ > +-, with ^ right-associative), the FR-3/FR-4 function and constant dispatch tables, a table mapping every FR-6 syntax-error case and every FR-7 domain-error case to a specific parser/evaluator check with typed SyntaxError/DomainError, the FR-8 output-formatting algorithm (fixed-notation, 10 significant digits, no scientific notation, with the large-magnitude and power-of-ten rounding edge cases called out for test coverage), FR-9's CLI argument contract (--help/-h, missing/extra args), a traceability list from each FR to its test point, and alternatives considered. One non-blocking note: requirements.md's FR-5 and Confirmed Assumptions reference a now-absent 'Open Questions' section for the angle unit, but FR-5's own text already states radians unambiguously, so this was treated as stale wording, not a blocking gap, and the design proceeds with radians. Ready for Pre-QA."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:21:37.018991+00:00",
+      "from": "PRE_QA",
+      "to": "DESIGN",
+      "verdict": {
+        "decision": "needs_work",
+        "defect_type": "design",
+        "summary": "Wrote concrete FR-1..FR-9 test cases (see test-cases.md) against requirements.md + design.md. The design is thorough and mostly sound, but writing the FR-3/FR-5 trigonometric happy-path tests surfaced a real design gap: design.md \u00a79's FormatResult algorithm has no epsilon/tolerance handling for near-zero floating-point results, so canonical trig inputs that are the headline example of this task's \"extended math functions\" \u2014 e.g. cos(pi/2), tan(pi) \u2014 do not evaluate to 0. Because math.Pi/2 is not exactly \u03c0/2 in float64, math.Cos(math.Pi/2) returns 6.123233995736766e-17, a genuine nonzero float; FormatResult's v==0 fast path only catches exact zero, so the significant-digit branch renders this as a roughly 28-character quasi-zero string (0.00000000000000006123233996) instead of the 0 any user would expect. This is satisfiable under FR-8's literal wording either way, so it's a design decision that was never made, not a requirements defect: design.md needs to either (a) add an explicit epsilon/snap-to-zero rule to the formatting algorithm for near-zero transcendental results, or (b) explicitly document that raw floating-point output is intended and accept the ugly display. Recommend (a), since a calculator whose flagship feature is trig functions producing a 20+ character garbage string for cos(pi/2)/tan(pi) will read as a bug to essentially every user/tester who tries the most obvious inputs. Secondary, non-blocking notes for Design's awareness (documented in test-cases.md, no action required to advance once the epsilon issue is resolved): (1) whether stdout includes a trailing newline is unspecified anywhere; (2) \u00a75's formal grammar doesn't show the constant-vs-function-call lookahead disambiguation that \u00a77's error table implies (pi(3) \u2192 'unknown function pi'), worth a one-line clarification. Everything else in the design (grammar/precedence per FR-2, function/constant tables per FR-3/FR-4, the FR-6 syntax-error table, the FR-7 domain-error table including the negative-zero-divisor and NaN-from-Pow generalization, and the large-magnitude/power-of-ten rounding cases in FR-8) checked out as sound and directly testable; full test tables are in test-cases.md for Implementation/QA to use once the epsilon question is resolved."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:24:54.304048+00:00",
+      "from": "DESIGN",
+      "to": "PRE_QA",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "Resolved the routed-back defect: design.md's FormatResult algorithm (\u00a79) had no epsilon/tolerance handling for near-zero floating-point results, so canonical trig inputs like cos(pi/2) and tan(pi) printed as ~20-28 character quasi-zero decimals instead of '0'. Added \u00a79a 'Near-zero snapping': FormatResult now treats any result with |v| < 1e-9 as '0' (a global check in the formatter, chosen over scoping it to only the trig functions, with the rationale, trade-offs, and rejected alternative documented explicitly). Updated the \u00a79 pseudocode, the \u00a711 FR-8 traceability list, and \u00a712 alternatives-considered to reflect this. Also resolved both secondary non-blocking notes raised by Pre-QA: added \u00a74a documenting that all stdout/stderr output (results, errors, usage text) ends with a trailing newline, and added an explicit lookahead-disambiguation rule to \u00a75 clarifying that an identifier followed by '(' is always resolved against the function table (never the constant table), explaining why pi(3) is 'unknown function \"pi\"' rather than a constant-then-syntax-error. design.md is otherwise unchanged from the version Pre-QA reviewed (grammar/precedence, function/constant tables, FR-6 syntax-error table, FR-7 domain-error table, and large-magnitude formatting all already checked out as sound). Ready for Pre-QA to re-verify against the updated design."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:29:11.612029+00:00",
+      "from": "PRE_QA",
+      "to": "IMPLEMENTATION",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "Round-2 Pre-QA re-review of design.md against requirements.md, after the round-1 blocking design gap was routed back and fixed. Verified all three items Design addressed: (1) \u00a79a's near-zero snapping (|v| < 1e-9 \u2192 \"0\") correctly resolves the original blocking issue \u2014 canonical trig inputs like cos(pi/2) and tan(pi) now format as \"0\" instead of ~20-28 character floating-point-noise strings; traced through the formatting pseudocode by hand (including the power-of-ten rounding-boundary cases in FR8-T11/T12) and confirmed strconv.FormatFloat's own rounding/carry behavior already avoids the off-by-one the design's own \u00a79 caution note warns about, so no residual bug there. (2) \u00a74a's trailing-newline convention and (3) \u00a75's explicit ident lookahead-disambiguation rule (function-call vs. constant) both resolve the two non-blocking notes from round 1. test-cases.md has been updated in place: the former 'BLOCKING ISSUE' section is now a 'RESOLVED (round 2)' section, FR3-T04/T06 expected values updated to '0' as regression tests for the fix, and the FR-1/FR-4 open notes marked resolved with references to \u00a74a/\u00a75. One new non-blocking observation was added as FR8-T13 for QA's awareness (not routed back): design \u00a79's exact-integer fast path (v == Trunc(v)) is checked before the 10-significant-digit cap, so large exact-integer results (e.g. 2^60) print in full with no digit cap, unlike a same-magnitude non-integer result which does get rounded/capped (contrast with FR8-T09). This is a literal, defensible reading of FR-8's text (the significant-digit cap is stated only for non-integer results) and not a design defect worth another round-trip, but is flagged as a test case for QA plus a note that very large results may print float64 representation noise beyond ~15-17 significant digits (an already-accepted float64-vs-big.Float trade-off per design \u00a712). No other issues found; the grammar/precedence (FR-2), function/constant dispatch (FR-3/FR-4), FR-6 syntax-error table, and FR-7 domain-error table (including the generic \u00b1Inf/NaN catch-all for uncovered operations) all check out as sound and directly testable. Design is ready to advance to Implementation; full test tables are in test-cases.md."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:37:40.060738+00:00",
+      "from": "IMPLEMENTATION",
+      "to": "QA",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "Implemented the CLI calculator in Go per design.md, at the repo root (module cli-calc). Layout: cmd/calc/main.go (thin CLI shell with a run(args, stdout, stderr) int test seam, os.Exit(run(...)) in main; usage text for FR-9) and internal/calc (pure, dependency-free core: token.go/lexer.go for tokenizing with whitespace-skipping and digit+('.'digit+)? number literals, ast.go for the AST node types, parser.go implementing the precedence-climbing grammar from design \u00a75 with the exact FR-2 precedence/associativity including the -2^2==4 case, eval.go with the FR-3 function table and FR-4 constant table doubling as the parser's name-validity check, format.go implementing FR-8's formatting algorithm including the \u00a79a near-zero snap so cos(pi/2)/tan(pi) print '0', and errors.go with typed SyntaxError/DomainError). Installed Go 1.22.5 locally (was not preinstalled) to build and test. `go build ./...`, `go vet ./...`, and `gofmt -l .` are all clean; `go test ./...` passes (internal/calc 92.7% coverage, cmd/calc 92.9% coverage) with table-driven tests covering every FR-1..FR-9 happy and error path (lexer_test.go, parser_test.go, eval_test.go, format_test.go, calc_test.go under internal/calc; main_test.go under cmd/calc using the run() seam, no subprocess spawning). Manually smoke-tested the built binary against the full test-cases.md table. One finding for QA's attention, not something Implementation can or should paper over: test-cases.md's FR8-T11 (`10 - 0.0000000005` expected `10`) does not hold under real float64 arithmetic \u2014 `10.0 - 0.0000000005` in float64 evaluates to 9.999999999499999958..., which correctly rounds to 10 significant digits as `9.999999999`, not `10` (verified independently with math/big). My implementation follows design.md \u00a79's FormatResult pseudocode exactly (unchanged), and the power-of-ten rounding-boundary behavior the pseudocode's caution note describes does work correctly when tested with an input that doesn't suffer this particular float64 subtraction precision loss (e.g. the literal `9.9999999996` correctly formats to `10`); I added that variant as a passing regression test in format_test.go. This looks like a Pre-QA test-case authoring error (an unverified assumption about the exact decimal value of a lossy floating-point subtraction) rather than an implementation or design defect, but QA should make the final call on whether it needs to be routed back to Pre-QA/test-cases.md. Also worth reiterating for QA (already flagged as non-blocking by Design/Pre-QA, and confirmed unchanged in the actual implementation): FR8-T13's `2^60` prints as `1152921504606847000` rather than the exact `1152921504606846976`, because Go's strconv.FormatFloat(-1 precision) produces the shortest round-tripping decimal string for the float64 result of math.Pow(2,60), not the literal exact decimal expansion \u2014 an accepted float64-precision trade-off per design \u00a712, exercised as-is with no attempted workaround."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:41:07.085894+00:00",
+      "from": "QA",
+      "to": "REVIEW",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "Ran `go build ./...`, `go vet ./...`, gofmt check, and `go test ./... -v -cover`: all 23 existing unit tests (cmd/calc + internal/calc) pass, coverage 92.9%/92.7%. Independently black-box tested the built cmd/calc binary against all 84 concrete cases in test-cases.md (FR-1 through FR-9, including precedence/associativity, all 10 extended math functions, constants, radians, every FR-6 syntax-error row, every FR-7 domain-error row, FR-8 formatting incl. rounding/trimming/near-zero-snap/large-magnitude branches, and FR-9 help/usage/arg-count rules) plus manual spot checks of exact error-message text, trailing-newline convention (od -c), and negative-zero handling. 82/84 matched exactly; the 2 mismatches are not implementation/design/requirement defects: (1) FR8-T13 (`2^60`) printing `1152921504606847000` instead of the exact `1152921504606846976` is explicitly pre-classified in test-cases.md itself as a 'non-blocking edge case, noted for QA awareness, not a defect' (Go's `strconv.FormatFloat(v,'f',-1,64)` shortest-round-trip representation for large exactly-representable floats with a 256-wide spacing gap near 2^60 \u2014 confirmed via a standalone repro). (2) FR8-T11 (`10 - 0.0000000005` expected `10`, got `9.999999999`) is a flawed expected value in test-cases.md: verified via big.Float that the nearest float64 to the exact decimal 9.9999999995 is 9.999999999499999958629..., strictly below the halfway point, so IEEE-754 double-rounding correctly formats it as `9.999999999`, not `10` \u2014 reproducing the same result whether reached via subtraction or via direct `strconv.ParseFloat('9.9999999995')`. Getting `10` would require exact/arbitrary-precision decimal arithmetic, which design.md \u00a712 explicitly and correctly rejects (float64 only, per Confirmed Assumptions/NFR scope). The design's actual power-of-ten rounding-boundary logic (recompute exponent from the rounded value) is independently verified correct by the adjacent FR8-T12 case (`99.999999996` -> `100`), which passes. No code defect found; implementation matches design.md precisely (grammar, error productions, domain checks, formatting algorithm) and design matches requirements.md. Recommend advancing to Review."
+      }
+    },
+    {
+      "ts": "2026-07-16T08:42:41.042568+00:00",
+      "from": "REVIEW",
+      "to": "DONE",
+      "verdict": {
+        "decision": "advance",
+        "defect_type": null,
+        "summary": "Reviewed the Go CLI calculator implementation (cmd/calc, internal/calc) against requirements.md and design.md. Module layout matches design exactly: cmd/calc is a thin I/O shell with a run(args, stdout, stderr) test seam; internal/calc is a pure lexer/parser/evaluator/formatter core. Verified by code walk-through: FR-2 precedence/associativity (including the -2^2==4 and 2^3^2==512 cases) is correctly encoded in the recursive-descent grammar; FR-3/FR-4 function and constant dispatch tables are complete and correctly shared between parser validation and evaluator dispatch; FR-5 radians confirmed; FR-6 syntax-error productions and FR-7 domain-error checks (including the negative-zero divisor and generic Inf/NaN catch-all) match design's tables row-for-row with correct messages; FR-8's FormatResult correctly implements the significant-digit/rounding/trailing-zero-trim algorithm and the power-of-ten rounding-boundary and near-zero-snap (section 9a) special cases -- traced the arithmetic by hand for the 9.9999999996->10, 99.999999996->100, 12345678901.5->12345678900, and 1234567890.5->1234567891 cases and all are correct; FR-9's argument contract (help, zero args, 2+ args including a stray --help among them) matches design section 4. Error types are distinct (*SyntaxError/*DomainError) as designed. Code is clean: small single-purpose functions, clear names, comments explain rationale/why (not restating code), no dead code or TODOs, no I/O leakage into the pure core, no security concerns (no external I/O beyond argv/stdout/stderr, no shell/eval injection surface). Test suite (lexer_test.go, parser_test.go, eval_test.go, format_test.go, calc_test.go, main_test.go) is thorough and table-driven, covering every FR-1..FR-9 happy and error path plus the boundary/regression cases called out in design.md and test-cases.md (near-zero trig snap, power-of-ten rounding, negative zero, case sensitivity, multi-arg CLI rejection, trailing newline); this satisfies NFR-2. Implementation, QA, and Pre-QA's prior notes about test-cases.md's FR8-T11 expected value and FR8-T13's float64 large-integer display are correctly diagnosed as a test-authoring/float64-precision trade-off, not a code defect -- confirmed independently by re-deriving the arithmetic. No blocking issues found; the implementation is complete, correct, and faithful to both design.md and requirements.md. Ready to ship."
+      }
+    }
+  ]
+}
