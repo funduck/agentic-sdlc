@@ -1,6 +1,15 @@
 {
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
     "features": {
+        "ghcr.io/devcontainers/features/node:1": {},
         "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
-    }
+    },
+    "remoteUser": "vscode",
+    "runArgs": [
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW"
+    ],
+    "postStartCommand": "sudo /usr/local/bin/init-firewall.sh"
 }

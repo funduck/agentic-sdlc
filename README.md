@@ -1,6 +1,25 @@
 # Multiagent workflow for SDLC
 This project is a simple experiment to demonstrate how multiple agents can work together to automate the software development lifecycle (SDLC). The goal is to create a workflow where different agents handle various stages of the SDLC, such as requirements gathering, design, implementation, testing, and deployment.
 
+## Quick Start
+Install devcontainers:
+```
+npm install -g @devcontainers/cli
+```
+
+Start CLaude session in safe environment:
+```
+devcontainer up --workspace-folder .
+devcontainer exec claude --dangerously-skip-permissions
+```
+Then use commands: 
+* /add-task <task-id> <requirements...>
+* /run-task <task-id>
+* /confirm-task <task-id> [--approve | --request-changes "..."]
+* /status-task <task-id>
+
+---
+
 ## Agents
 Workflow consists of the following agents passing the work from one to another:
 1. **Requirements Agent**: Gathers and analyses requirements, surfacing every assumption and open question. Owns the requirements document, which a human must approve at the confirm-requirements gate before Design begins.
@@ -164,3 +183,20 @@ python3 .agents/orchestrator/orchestrator.py confirm --task calc --request-chang
 # Check where a task is: current stage, status, loop counters, recent history.
 python3 .agents/orchestrator/orchestrator.py status --task calc
 ```
+
+### Running safely in the devcontainer
+Because the orchestrator dispatches subagents (`sdlc-implementation`, `sdlc-qa`) that run arbitrary
+Bash, unattended runs should happen inside [.devcontainer/](.devcontainer/), not on the host. The
+devcontainer builds a non-root user confined to this repo's workspace mount and runs
+[init-firewall.sh](.devcontainer/init-firewall.sh) at startup, which default-denies all outbound
+network traffic and allowlists only the hosts Claude Code / git / npm need
+(`api.anthropic.com`, `github.com`, `registry.npmjs.org`, …). The script self-tests the rules on every
+start and refuses to continue if the allowlist/blocklist behavior doesn't check out.
+
+1. Open the repo in VS Code and "Reopen in Container" (or `devcontainer up` / `devcontainer exec` from
+   the CLI), and confirm the firewall self-test in the container's start-up log passed.
+2. Only inside that container, drive the pipeline with permission prompts skipped:
+   `claude --dangerously-skip-permissions`, then use the `/run-task` etc. commands as usual.
+
+`--dangerously-skip-permissions` should never be used on the host — the container's filesystem
+confinement and network allowlist are what make skipping prompts acceptable here.
