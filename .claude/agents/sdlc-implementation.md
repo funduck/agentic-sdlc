@@ -21,8 +21,9 @@ run.
 
 Write your verdict to `verdict.json` in the task workspace as JSON:
 `{"decision": "advance", "defect_type": null, "summary": "..."}` once your implementation is ready for
-QA. Implementation does not self-judge correctness; QA evaluates the result. The `summary` must be
-**self-contained and human-readable** (what you built/changed) — it's what the orchestrator relays.
+QA. Implementation does not self-judge correctness; QA evaluates the result. The `summary` is a terse
+**pointer, not a re-narration** (see core.md "Keep verdicts terse"): what you built/changed at a high
+level and any handoff note for QA; don't restate the code or re-derive accepted deviations.
 
 Put all substance in the product code and `verdict.json`. Your final reply message must be a single
 line acknowledging completion — nothing more.

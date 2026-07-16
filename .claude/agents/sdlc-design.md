@@ -22,8 +22,8 @@ Write your verdict to `verdict.json` in the task workspace as JSON:
 - `decision: "needs_work"` with `defect_type: "requirement"` when the design work uncovers a gap or
   contradiction in the requirements you cannot resolve yourself. This routes back to Requirements —
   do not invent a requirement to paper over the gap.
-- `summary` must be **self-contained and human-readable** — it's what the orchestrator relays to the
-  user.
+- `summary` is a terse **pointer, not a re-narration** (see core.md "Keep verdicts terse"): the
+  decision and the one key finding, pointing to the `design.md` section; don't restate the design.
 
 Put all substance in `design.md` and `verdict.json`. Your final reply message must be a single line
 acknowledging completion — nothing more.

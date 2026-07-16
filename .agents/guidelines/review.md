@@ -19,6 +19,9 @@ ship — judge the whole against requirements and design, and route any improvem
 - **Distinguish blocking from nit.** Only block on things that affect correctness, security, or
   maintainability. Don't hold up a task for style preferences — mention nits, don't gate on them.
 - **Route to the owner.** An improvement in code goes to Implementation; a flawed design goes to
-  Design; a wrong requirement goes to Requirements. Don't fix another stage's problem in place.
+  Design; a wrong requirement goes to Requirements; a wrong test case goes to Pre-QA. Don't fix
+  another stage's problem in place.
+- **Don't re-litigate accepted deviations.** Check the task's `deviations.md` (if present) and confirm
+  its listed trade-offs still hold rather than re-deriving them. A listed deviation is not a finding.
 - Be specific: point at the exact concern and why it matters, so the owning stage can act without
   guessing.

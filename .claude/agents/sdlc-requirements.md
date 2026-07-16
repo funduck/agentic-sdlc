@@ -33,8 +33,8 @@ Write your verdict to `verdict.json` in the task workspace as JSON:
 - `defect_type` is always `null` for this stage.
 - `decision`: `"advance"` when you believe the requirements are complete, `"unclear"` when Open
   Questions remain. (Routing no longer keys off this — the gate always fires — but set it honestly.)
-- `summary` must be **self-contained and human-readable**: it's what the orchestrator relays to the
-  user, e.g. counts of assumptions and open questions and what to review.
+- `summary` is a terse **pointer, not a re-narration** (see core.md "Keep verdicts terse"): what to
+  review and the counts of assumptions/open questions; put the substance in `requirements.md`.
 
 Put all substance in `requirements.md` and `verdict.json`. Your final reply message must be a single
 line acknowledging completion (e.g. "Requirements written; verdict recorded") — nothing more.

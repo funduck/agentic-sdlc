@@ -62,6 +62,7 @@ OWNER = {
     "requirement": STATE_REQUIREMENTS,
     "design": STATE_DESIGN,
     "implementation": STATE_IMPLEMENTATION,
+    "test": STATE_PRE_QA,
 }
 
 DEFAULT_BUDGET = 3
@@ -207,9 +208,10 @@ def _dispatch_message(agent: str, workspace: Path, project_dir: Path, feedback: 
     msg = (
         f"Run the {agent} subagent. Its working directory is the project repo ({project_dir}), where "
         f"product code goes. Task artifacts live in the workspace {workspace} (task.md / "
-        f"requirements.md / design.md, addressed by absolute path). The subagent must write its verdict "
-        f"to {workspace / 'verdict.json'} and return only a one-line ack — do not relay its output; the "
-        f"orchestrator reads the verdict on `record`."
+        f"requirements.md / design.md / test-cases.md, and deviations.md if present — the ledger of "
+        f"accepted trade-offs to confirm rather than re-derive; addressed by absolute path). The "
+        f"subagent must write its verdict to {workspace / 'verdict.json'} and return only a one-line "
+        f"ack — do not relay its output; the orchestrator reads the verdict on `record`."
     )
     if feedback:
         msg += f" Feedback it must address first: {feedback}"

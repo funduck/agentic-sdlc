@@ -1,0 +1,11 @@
+[
+  {"state": "REQUIREMENTS",   "decision": "advance",    "defect_type": null,   "summary": "clear"},
+  {"state": "DESIGN",         "decision": "advance",    "defect_type": null,   "summary": "design ready"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "test cases written, design ok"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code written"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "test", "summary": "FR8-T11 expected value is wrong -> route to Pre-QA"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "fixed the test case"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code unchanged, re-verified"},
+  {"state": "QA",             "decision": "advance",    "defect_type": null,   "summary": "all tests pass"},
+  {"state": "REVIEW",         "decision": "advance",    "defect_type": null,   "summary": "approved"}
+]

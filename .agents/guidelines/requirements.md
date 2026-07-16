@@ -31,3 +31,17 @@ Each requirement should be:
   what's needed to proceed.
 - Anything material you genuinely can't decide goes in **Open Questions** — never silently guess a
   core behavior. Surfacing an assumption for the human to confirm is the goal, not a failure.
+
+## Self-check consistency before handoff
+
+The document goes to a human gate and then to Design as-is, so it must be internally consistent.
+Before you finish, re-read the whole file and verify:
+
+- **No dangling cross-references** — every "see Open Questions", "see §X", or FR-to-FR pointer
+  resolves to a section that still exists. If you fold an Open Question into an FR/Assumption, delete
+  the pointers to it (don't leave references to a section you removed).
+- **No contradictions** — no FR contradicts another FR or an Assumption.
+- **Every term used is defined** and used the same way throughout.
+
+A downstream stage that has to guess whether a stale reference is a real gap or just leftover wording
+is wasted effort you can prevent here.

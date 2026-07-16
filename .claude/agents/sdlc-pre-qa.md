@@ -24,8 +24,8 @@ Write your verdict to `verdict.json` in the task workspace as JSON:
 - `decision: "needs_work"` with `defect_type: "design"` for a design flaw (routes to Design).
 - `decision: "needs_work"` with `defect_type: "requirement"` for a requirements ambiguity (routes to
   Requirements). Route to the *owner* of the problem, not simply the previous stage.
-- `summary` must be **self-contained and human-readable** — it's what the orchestrator relays to the
-  user.
+- `summary` is a terse **pointer, not a re-narration** (see core.md "Keep verdicts terse"): the
+  decision, owner, and key finding, pointing to the test-case file; don't restate the test tables.
 
 Put all substance in your test-case files and `verdict.json`. Your final reply message must be a single
 line acknowledging completion — nothing more.

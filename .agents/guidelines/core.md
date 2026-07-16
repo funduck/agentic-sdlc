@@ -48,5 +48,14 @@ stage-specific guideline. Keep the bar high but stay pragmatic — these are def
 
 ## Stay in your lane
 
-- When you find a defect you don't own, **route it to the owner** (requirement / design /
-  implementation) rather than papering over it locally. Don't invent facts to fill a gap you can't own.
+- When you find a defect you don't own, **route it to the owner** (requirement → Requirements /
+  design → Design / implementation → Implementation / test case → Pre-QA) rather than papering over it
+  locally. Don't invent facts to fill a gap you can't own.
+
+## Keep verdicts terse
+
+- Your `verdict.json` `summary` is a **pointer, not a re-narration**. State the decision, the owner,
+  and the one specific finding, then point to where the detail lives (the artifact file/section). Put
+  the substance in your artifact; don't restate reasoning already captured there or in a prior verdict.
+- Don't re-derive an **accepted deviation**. If the task has a `deviations.md`, a behavior listed there
+  is a settled trade-off — confirm it, don't re-analyse it, and record any new one there.

@@ -18,14 +18,19 @@ Not every failure is the implementation's fault — classify the root cause and 
 ## Output contract
 
 Write your verdict to `verdict.json` in the task workspace as JSON:
-`{"decision": "advance|needs_work", "defect_type": "implementation|design|requirement|null", "summary": "..."}`.
+`{"decision": "advance|needs_work", "defect_type": "implementation|design|requirement|test|null", "summary": "..."}`.
 - `decision: "advance"` when everything passes — hand off to Review (`defect_type: null`).
 - `decision: "needs_work"` with `defect_type`:
   - `"implementation"` — code is wrong (routes to Implementation).
   - `"design"` — the design itself is flawed (routes to Design).
   - `"requirement"` — the requirement was misunderstood or wrong (routes to Requirements).
-- `summary` must be **self-contained and human-readable** (what passed/failed and why) — it's what the
-  orchestrator relays.
+  - `"test"` — code and design are right, but a test case itself is wrong (bad expected value,
+    flawed assumption, flaky) (routes to Pre-QA). Check `deviations.md` first — a listed, accepted
+    deviation is not a failure, so don't route it.
+- `summary` is a **pointer, not a re-narration**: ≤ ~120 words. State the decision, the owner, and the
+  one specific finding, and point to where the detail lives (the artifact file/section). Don't restate
+  reasoning already captured in an artifact or a prior verdict — reference it. It's what the
+  orchestrator relays, so keep it self-contained but terse.
 
 Put all substance in your test artifacts and `verdict.json`. Your final reply message must be a single
 line acknowledging completion — nothing more.

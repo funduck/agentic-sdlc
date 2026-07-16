@@ -1,0 +1,16 @@
+[
+  {"state": "REQUIREMENTS",   "decision": "advance",    "defect_type": null,   "summary": "clear"},
+  {"state": "DESIGN",         "decision": "advance",    "defect_type": null,   "summary": "ready"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "tests written (1)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "test", "summary": "bad test (1)"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "tests written (2)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "test", "summary": "bad test (2)"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "tests written (3)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "test", "summary": "bad test (3)"},
+  {"state": "PRE_QA",         "decision": "advance",    "defect_type": null,   "summary": "tests written (4)"},
+  {"state": "IMPLEMENTATION", "decision": "advance",    "defect_type": null,   "summary": "code"},
+  {"state": "QA",             "decision": "needs_work", "defect_type": "test", "summary": "bad test (4) -> over budget"}
+]

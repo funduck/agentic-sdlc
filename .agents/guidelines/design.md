@@ -8,6 +8,11 @@ Deeper guidance for the Design stage. Apply alongside `core.md`.
   cost; add a seam only where a real, near-term need justifies it.
 - If designing reveals a gap or contradiction in the requirements you can't resolve, **route it back**
   to Requirements — don't invent a requirement to paper over it.
+- An **internal inconsistency** in `requirements.md` (a dangling cross-reference, an FR that
+  contradicts an Assumption) is a `requirement` defect to route back *when it creates real ambiguity
+  about what to build* — don't silently reinterpret it as "stale wording" and guess. Keep the bar at
+  "affects a decision": a trivial typo isn't worth a round-trip, but anything that changes what the
+  design must do is.
 
 ## Apply SOLID at the boundaries
 
