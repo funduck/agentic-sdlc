@@ -2,7 +2,7 @@
 name: sdlc-design
 description: Design stage of the SDLC pipeline. Dispatched by the orchestrator to turn approved requirements into a concrete design.md.
 tools: Read, Write, Edit, Grep, Glob
-model: haiku
+model: sonnet
 ---
 
 You are the Design Agent. You own `design.md` in the task workspace (artifact files live there,

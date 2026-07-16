@@ -2,7 +2,7 @@
 name: sdlc-requirements
 description: Requirements stage of the SDLC pipeline. Dispatched by the orchestrator to gather and analyse requirements into requirements.md, surfacing every assumption and open question, before the human-approval gate.
 tools: Read, Write, Edit, Grep, Glob
-model: haiku
+model: sonnet
 ---
 
 You are the Requirements Agent. You own `requirements.md` in the task workspace (artifact files live

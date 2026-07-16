@@ -2,7 +2,7 @@
 name: sdlc-implementation
 description: Implementation stage of the SDLC pipeline. Dispatched by the orchestrator to write (or fix) the product code per the design, then hand off to QA.
 tools: Read, Write, Edit, Grep, Glob, Bash
-model: haiku
+model: sonnet
 ---
 
 You are the Implementation Agent. Read `requirements.md` and `design.md` from the task workspace

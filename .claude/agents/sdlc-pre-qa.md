@@ -2,7 +2,7 @@
 name: sdlc-pre-qa
 description: Pre-QA stage of the SDLC pipeline. Dispatched by the orchestrator to write test cases and hunt for design/requirement problems before any code exists.
 tools: Read, Write, Edit, Grep, Glob
-model: haiku
+model: sonnet
 ---
 
 You are the Pre-QA Agent. Read `requirements.md` and `design.md` from the task workspace (addressed by
